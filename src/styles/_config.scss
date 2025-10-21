@@ -1,0 +1,202 @@
+/**
+ * @file _config.scss
+ * @description Configuración central del CSS Anchor Positioning Toolkit
+ *
+ * Define CSS custom properties (runtime) y SCSS variables (compile-time)
+ * basado en research exhaustivo de 9 artículos de css-tip.com
+ *
+ * @version 1.0.0
+ * @author MKS2508
+ *
+ * @see ../../../CSS-ANCHOR-RESEARCH.md - Research completo (30+ técnicas)
+ * @see ../../../CSS-ANCHOR-ADVANCED-TECHNIQUES.md - 7 implementaciones completas
+ */
+
+/* === CSS Custom Properties (Runtime - Exposed via :root) === */
+
+:root {
+  /* Distances - Espaciado entre anchor y positioned element */
+  --anchor-distance-sm: 4px;
+  --anchor-distance-md: 8px;
+  --anchor-distance-lg: 12px;
+  --anchor-distance-xl: 16px;
+  --anchor-distance-2xl: 24px;
+
+  /* Arrow Sizes - Tamaños de arrows para tooltips */
+  --anchor-arrow-sm: 6px;
+  --anchor-arrow-md: 8px;
+  --anchor-arrow-lg: 10px;
+  --anchor-arrow-xl: 12px;
+
+  /* Corner Magic - Constante √2 - 1 para corner positioning diagonal */
+  /* Fórmula: distance + (√2 - 1) × arrowSize */
+  /* Fuente: https://css-tip.com/tooltip-anchor-3/ */
+  --anchor-corner-magic: 0.41421356237;
+
+  /* Animation Timings - Para scroll-driven y transitions */
+  --anchor-transition-fast: 150ms;
+  --anchor-transition-base: 250ms;
+  --anchor-transition-slow: 350ms;
+}
+
+/* === SCSS Variables (Compile-time - Para loops y mixins) === */
+
+/**
+ * Position-area values completos (36+ base positions)
+ *
+ * Grid 3×3 con physical, logical y spanning variants
+ * Soporta las 576 configuraciones: 36 positions × 4 justify × 4 align
+ *
+ * Fuente: https://developer.mozilla.org/en-US/docs/Web/CSS/position-area
+ */
+$position-areas: (
+  // Physical Keywords: Basic 9
+  'top',
+  'bottom',
+  'left',
+  'right',
+  'center',
+  'top left',
+  'top right',
+  'bottom left',
+  'bottom right',
+
+  // Logical Keywords: Basic 9
+  'block-start',
+  'block-end',
+  'inline-start',
+  'inline-end',
+  'block-start inline-start',
+  'block-start inline-end',
+  'block-end inline-start',
+  'block-end inline-end',
+  'center inline-start',
+  'center inline-end',
+
+  // Spanning Variants: Top/Bottom
+  'top span-left',
+  'top span-right',
+  'span-top left',
+  'span-top center',
+  'span-top right',
+  'bottom span-left',
+  'bottom span-right',
+  'span-bottom left',
+  'span-bottom center',
+  'span-bottom right',
+
+  // Spanning Variants: Left/Right
+  'left span-top',
+  'left span-bottom',
+  'span-left top',
+  'span-left center',
+  'span-left bottom',
+  'right span-top',
+  'right span-bottom',
+  'span-right top',
+  'span-right center',
+  'span-right bottom',
+
+  // All-spanning
+  'span-all',
+  'center span-all'
+) !default;
+
+/**
+ * Alignment values para justify-self y align-self
+ *
+ * Estos permiten las 576 configuraciones completas:
+ * 36 positions × 4 justify-self × 4 align-self = 576
+ *
+ * Uso combinado:
+ * .anchor-top .anchor-justify-start .anchor-align-center
+ */
+$justify-values: (
+  'start',
+  'end',
+  'center',
+  'stretch'
+) !default;
+
+$align-values: (
+  'start',
+  'end',
+  'center',
+  'stretch'
+) !default;
+
+/**
+ * Position-try fallback tactics
+ *
+ * Fuente: https://developer.mozilla.org/en-US/docs/Web/CSS/position-try-fallbacks
+ */
+$fallback-tactics: (
+  'flip-block',
+  'flip-inline',
+  'flip-start'
+) !default;
+
+/**
+ * Distance sizes disponibles
+ *
+ * Corresponden a las CSS custom properties --anchor-distance-*
+ */
+$distances: (
+  'sm',
+  'md',
+  'lg',
+  'xl',
+  '2xl'
+) !default;
+
+/**
+ * Arrow sizes disponibles
+ *
+ * Corresponden a las CSS custom properties --anchor-arrow-*
+ */
+$arrow-sizes: (
+  'sm',
+  'md',
+  'lg',
+  'xl'
+) !default;
+
+/**
+ * Arrow types soportados
+ *
+ * Cada uno implementa una técnica específica descubierta en el research:
+ *
+ * - 2-headed: Margin magic vertical (top/bottom)
+ *   Fuente: https://css-tip.com/tooltip-anchor/
+ *
+ * - 4-headed: Polygon 12 puntos (top/bottom/left/right)
+ *   Fuente: https://css-tip.com/tooltip-anchor-2/
+ *
+ * - diagonal: √2 formula para corners (4 esquinas)
+ *   Fuente: https://css-tip.com/tooltip-anchor-3/
+ *
+ * - scroll-driven: View-timeline integration
+ *   Fuente: https://css-tip.com/range-slider-tooltip/
+ */
+$arrow-types: (
+  '2-headed',
+  '4-headed',
+  'diagonal',
+  'scroll-driven'
+) !default;
+
+/* === Design Tokens (Opcionales - Usuario puede override) === */
+
+/**
+ * Tokens opcionales para theming de tooltips
+ *
+ * El toolkit NO fuerza estos valores, son solo defaults razonables
+ * El usuario puede override vía SCSS variables o CSS custom properties
+ */
+$tooltip-bg-color: #1a1a1a !default;
+$tooltip-text-color: #ffffff !default;
+$tooltip-border-radius: 0.375rem !default;
+$tooltip-padding: 0.5rem 0.75rem !default;
+$tooltip-font-size: 0.875rem !default;
+$tooltip-line-height: 1.25rem !default;
+$tooltip-z-index: 9999 !default;

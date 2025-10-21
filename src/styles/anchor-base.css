@@ -1,0 +1,321 @@
+/**
+ * CSS Anchor Positioning - Utilities Base
+ *
+ * Clases utility para simplificar el uso de CSS Anchor Positioning
+ * Basado en la especificación W3C CSS Anchor Positioning Level 1
+ */
+
+/* ============================================
+   FEATURE DETECTION
+   ============================================ */
+
+/**
+ * Wrapper para contenido que requiere anchor positioning
+ * Muestra fallback si no hay soporte
+ */
+@supports not (anchor-name: --test) {
+  .anchor-required {
+    display: none;
+  }
+
+  .anchor-fallback {
+    display: block !important;
+  }
+}
+
+@supports (anchor-name: --test) {
+  .anchor-required {
+    display: block;
+  }
+
+  .anchor-fallback {
+    display: none !important;
+  }
+}
+
+/* ============================================
+   ANCHOR ELEMENTS
+   ============================================ */
+
+/**
+ * Clase base para elementos que actúan como anchors
+ * Se puede combinar con data-anchor-name para auto-aplicar nombres
+ */
+.anchor {
+  /* Los anchors pueden ser cualquier elemento en el flujo normal */
+  position: relative;
+}
+
+/**
+ * Auto-aplicar anchor-name desde data attribute
+ * Uso: <div class="anchor" data-anchor-name="--my-anchor">
+ */
+[data-anchor-name] {
+  anchor-name: attr(data-anchor-name);
+}
+
+/* ============================================
+   POSITIONED ELEMENTS BASE
+   ============================================ */
+
+/**
+ * Clase base para elementos posicionados con anchors
+ * Requiere position: absolute o fixed
+ */
+.positioned {
+  position: absolute;
+  margin: 0;
+  inset: auto;
+}
+
+.positioned-fixed {
+  position: fixed;
+  margin: 0;
+  inset: auto;
+}
+
+/* ============================================
+   POSITION-AREA UTILITIES
+   Sistema grid 3×3 - 36 combinaciones posibles
+   ============================================ */
+
+/* Posiciones cardinales simples */
+.anchor-top { position-area: top; }
+.anchor-bottom { position-area: bottom; }
+.anchor-left { position-area: left; }
+.anchor-right { position-area: right; }
+.anchor-center { position-area: center; }
+
+/* Esquinas (combinaciones top/bottom + left/right) */
+.anchor-top-left { position-area: top left; }
+.anchor-top-right { position-area: top right; }
+.anchor-bottom-left { position-area: bottom left; }
+.anchor-bottom-right { position-area: bottom right; }
+
+/* Posiciones lógicas (adaptan a writing mode) */
+.anchor-block-start { position-area: block-start; }
+.anchor-block-end { position-area: block-end; }
+.anchor-inline-start { position-area: inline-start; }
+.anchor-inline-end { position-area: inline-end; }
+
+/* Spanning (extender a través de múltiples celdas) */
+.anchor-span-top { position-area: span-top; }
+.anchor-span-bottom { position-area: span-bottom; }
+.anchor-span-left { position-area: span-left; }
+.anchor-span-right { position-area: span-right; }
+.anchor-span-all { position-area: span-all; }
+
+/* ============================================
+   FALLBACK TACTICS
+   position-try-fallbacks para evitar overflow
+   ============================================ */
+
+/**
+ * Fallbacks automáticos - flip en diferentes ejes
+ */
+.flip-auto {
+  position-try-fallbacks: flip-block, flip-inline, flip-start;
+}
+
+.flip-block {
+  position-try-fallbacks: flip-block;
+}
+
+.flip-inline {
+  position-try-fallbacks: flip-inline;
+}
+
+.flip-start {
+  position-try-fallbacks: flip-start;
+}
+
+/**
+ * Orden de fallbacks basado en espacio disponible
+ */
+.try-most-width {
+  position-try-order: most-width;
+}
+
+.try-most-height {
+  position-try-order: most-height;
+}
+
+.try-most-block {
+  position-try-order: most-block-size;
+}
+
+.try-most-inline {
+  position-try-order: most-inline-size;
+}
+
+/* ============================================
+   VISIBILITY CONTROL
+   position-visibility para mostrar/ocultar
+   ============================================ */
+
+.visible-always {
+  position-visibility: always;
+}
+
+.visible-anchors {
+  position-visibility: anchors-visible;
+}
+
+.visible-no-overflow {
+  position-visibility: no-overflow;
+}
+
+/* ============================================
+   TOOLTIP ESPECÍFICOS
+   Estilos para tooltips con arrows
+   ============================================ */
+
+.css-anchor-tooltip {
+  /* Variables CSS para distancia y tamaño de arrow */
+  --distance: 10px;
+  --arrow-size: 8px;
+}
+
+/**
+ * Arrow dinámico con clip-path
+ * Técnica "margin magic" de css-tip.com
+ */
+.css-anchor-tooltip[data-arrow="true"]::before {
+  content: "";
+  position: absolute;
+  width: var(--arrow-size);
+  height: var(--arrow-size);
+  background: inherit;
+  margin: inherit;
+  z-index: -1;
+
+  /* Clip path que crea 4 arrows simultáneos */
+  clip-path: polygon(
+    0 0,
+    var(--arrow-size) 0,
+    var(--arrow-size) var(--arrow-size),
+    0 var(--arrow-size),
+    calc(var(--arrow-size) / 2) 0,
+    var(--arrow-size) calc(var(--arrow-size) / 2),
+    calc(var(--arrow-size) / 2) var(--arrow-size),
+    0 calc(var(--arrow-size) / 2)
+  );
+}
+
+/* ============================================
+   ANIMATIONS
+   Transiciones y animaciones para entries/exits
+   ============================================ */
+
+@keyframes anchorFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes anchorSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes anchorSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/**
+ * Clases de animación aplicables
+ */
+.animate-fade-in {
+  animation: anchorFadeIn 0.2s ease-out;
+}
+
+.animate-slide-down {
+  animation: anchorSlideDown 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: anchorSlideUp 0.2s ease-out;
+}
+
+/* ============================================
+   RESPONSIVE & ACCESSIBILITY
+   ============================================ */
+
+/**
+ * Reducir animaciones para usuarios con preferencia
+ */
+@media (prefers-reduced-motion: reduce) {
+  .css-anchor-tooltip,
+  .css-anchor-popover,
+  .css-anchor-context-menu,
+  .animate-fade-in,
+  .animate-slide-down,
+  .animate-slide-up {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/**
+ * Focus visible para elementos interactivos anclados
+ */
+.positioned:focus-visible,
+.css-anchor-popover:focus-visible,
+.css-anchor-context-menu:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   DEBUG MODE
+   Visualización de anchors y positioned elements
+   ============================================ */
+
+/**
+ * Agregar clase .anchor-debug a body para visualizar anchors
+ */
+.anchor-debug .anchor,
+.anchor-debug [data-anchor-name] {
+  outline: 2px dashed rgba(255, 0, 0, 0.5);
+  outline-offset: 2px;
+}
+
+.anchor-debug .positioned,
+.anchor-debug .positioned-fixed {
+  outline: 2px dashed rgba(0, 0, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.anchor-debug .anchor::after,
+.anchor-debug [data-anchor-name]::after {
+  content: attr(data-anchor-name);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 10px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 2px;
+  white-space: nowrap;
+  z-index: 10000;
+  pointer-events: none;
+}

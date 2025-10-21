@@ -1,0 +1,237 @@
+/**
+ * @file _utilities.scss
+ * @description Utility classes auto-generadas para CSS Anchor Positioning
+ *
+ * Genera clases predecibles (NO hasheadas) para uso agnóstico en:
+ * - HTML/CSS puro
+ * - React con className
+ * - Cualquier framework o librería
+ *
+ * Soporta las 576 configuraciones:
+ * 36 position-areas × 4 justify-self × 4 align-self = 576
+ *
+ * Uso combinado:
+ * <div class="positioned anchor-top anchor-justify-start anchor-align-center">
+ *
+ * @version 1.0.0
+ * @author MKS2508
+ *
+ * @see ../../../CSS-ANCHOR-RESEARCH.md - Research completo
+ */
+
+@use 'config' as cfg;
+@use 'functions' as fn;
+
+/* === Base Classes === */
+
+/**
+ * Clase base para positioned elements
+ *
+ * Hace que el elemento sea absolutely positioned
+ * Combinar con .anchor-* classes para position-area
+ */
+.positioned {
+  position: absolute;
+}
+
+/**
+ * Clase base para anchor elements (opcional)
+ *
+ * Hace que el elemento sea relatively positioned
+ * NO es necesaria si el anchor ya tiene positioning context
+ */
+.anchor {
+  position: relative;
+}
+
+
+/* === Position Area Utilities (36+ classes) === */
+
+/**
+ * Genera utility class para cada position-area value
+ *
+ * Convierte valores como "top left" → .anchor-top-left
+ * Permite combinar con otras utilities:
+ *
+ * <div class="positioned anchor-top-left anchor-justify-center">
+ */
+@each $area in cfg.$position-areas {
+  .anchor-#{fn.escape-class-name($area)} {
+    position-area: #{$area};
+  }
+}
+
+
+/* === Alignment Utilities (8 classes: 4 justify + 4 align) === */
+
+/**
+ * Justify-self utilities
+ *
+ * Controla alignment horizontal dentro del position-area
+ *
+ * Valores disponibles:
+ * - start: Alinea al inicio (left en LTR)
+ * - end: Alinea al final (right en LTR)
+ * - center: Centra horizontalmente
+ * - stretch: Estira para llenar el ancho
+ *
+ * Uso: <div class="positioned anchor-top anchor-justify-start">
+ */
+@each $value in cfg.$justify-values {
+  .anchor-justify-#{$value} {
+    justify-self: #{$value};
+  }
+}
+
+/**
+ * Align-self utilities
+ *
+ * Controla alignment vertical dentro del position-area
+ *
+ * Valores disponibles:
+ * - start: Alinea arriba
+ * - end: Alinea abajo
+ * - center: Centra verticalmente
+ * - stretch: Estira para llenar el alto
+ *
+ * Uso: <div class="positioned anchor-left anchor-align-center">
+ */
+@each $value in cfg.$align-values {
+  .anchor-align-#{$value} {
+    align-self: #{$value};
+  }
+}
+
+
+/* === Distance Utilities (5 classes) === */
+
+/**
+ * Distance/margin utilities
+ *
+ * Aplica margin usando CSS custom properties
+ * El margin crea distancia entre el positioned element y el anchor
+ *
+ * Sizes disponibles:
+ * - sm: 4px
+ * - md: 8px (default recomendado)
+ * - lg: 12px
+ * - xl: 16px
+ * - 2xl: 24px
+ *
+ * IMPORTANTE para Margin Magic:
+ * - Cuando se usa con flip-block, el margin flip automáticamente
+ * - margin-bottom (position-area: top) → margin-top (después de flip)
+ *
+ * Uso: <div class="positioned anchor-top anchor-distance-md">
+ */
+@each $size in cfg.$distances {
+  .anchor-distance-#{$size} {
+    margin: var(--anchor-distance-#{$size});
+  }
+}
+
+
+/* === Fallback Utilities (4 classes) === */
+
+/**
+ * Individual fallback tactic classes
+ *
+ * Aplica una táctica de fallback específica
+ *
+ * - flip-block: Invierte eje vertical (top ↔ bottom)
+ * - flip-inline: Invierte eje horizontal (left ↔ right)
+ * - flip-start: Invierte posición diagonal
+ *
+ * Para múltiples fallbacks, combinar en el HTML:
+ * class="positioned anchor-top flip-block flip-inline"
+ *
+ * O mejor, usar .flip-auto que incluye todas
+ */
+@each $tactic in cfg.$fallback-tactics {
+  .flip-#{$tactic} {
+    position-try-fallbacks: #{$tactic};
+  }
+}
+
+/**
+ * Auto fallbacks (recomendado)
+ *
+ * Aplica las 3 fallback tactics más comunes automáticamente
+ * Cubre la mayoría de casos de uso para tooltips/popovers
+ *
+ * Equivalente a: flip-block, flip-inline, flip-start
+ *
+ * Uso: <div class="positioned anchor-top flip-auto">
+ */
+.flip-auto {
+  position-try-fallbacks: flip-block, flip-inline, flip-start;
+}
+
+
+/* === Visibility Utilities (3 classes) === */
+
+/**
+ * Position-visibility: always
+ *
+ * El positioned element siempre es visible
+ * Incluso si el anchor está fuera del viewport
+ *
+ * Útil para modals y overlays que deben permanecer visibles
+ */
+.visible-always {
+  position-visibility: always;
+}
+
+/**
+ * Position-visibility: anchors-visible
+ *
+ * El positioned element solo es visible si el anchor está visible
+ *
+ * Útil para tooltips que deben ocultarse cuando el anchor
+ * hace scroll fuera del viewport
+ */
+.visible-anchors {
+  position-visibility: anchors-visible;
+}
+
+/**
+ * Position-visibility: no-overflow
+ *
+ * El positioned element se oculta si overflow del containing block
+ *
+ * Útil para dropdowns dentro de containers con overflow:hidden
+ */
+.visible-no-overflow {
+  position-visibility: no-overflow;
+}
+
+
+/* === Additional Helper Classes === */
+
+/**
+ * Hidden class (utility)
+ *
+ * Oculta elemento completamente
+ * Útil para conditional rendering con CSS
+ */
+.anchor-hidden {
+  display: none;
+}
+
+/**
+ * Z-index utilities para layering
+ *
+ * Tooltips y popovers generalmente necesitan z-index alto
+ */
+.anchor-z-tooltip {
+  z-index: cfg.$tooltip-z-index;
+}
+
+.anchor-z-popover {
+  z-index: calc(cfg.$tooltip-z-index - 1);
+}
+
+.anchor-z-dropdown {
+  z-index: calc(cfg.$tooltip-z-index - 2);
+}
+

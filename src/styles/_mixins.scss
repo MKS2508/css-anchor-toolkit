@@ -1,0 +1,528 @@
+/**
+ * @file _mixins.scss
+ * @description Mixins reutilizables para CSS Anchor Positioning
+ *
+ * IMPORTANTE: Implementa técnicas CORRECTAS del research:
+ * - NO usa transform para arrows (técnica tradicional incorrecta)
+ * - USA position: fixed en pseudo-elements para anchor() function
+ * - USA margin: inherit magic para auto-hide arrows
+ * - USA anchor() y anchor-size() functions nativas
+ *
+ * @version 1.0.0
+ * @author MKS2508
+ *
+ * @see ../../../CSS-ANCHOR-RESEARCH.md - 30+ técnicas documentadas
+ * @see ../../../CSS-ANCHOR-ADVANCED-TECHNIQUES.md - 7 implementaciones completas
+ */
+
+@use 'config' as cfg;
+@use 'functions' as fn;
+
+/* === Core Mixins (Básicos con parámetros) === */
+
+/**
+ * Define un elemento como anchor
+ *
+ * El anchor es el elemento de referencia. Los positioned elements
+ * se anclan a él usando position-anchor
+ *
+ * @param {string} $name - Nombre único del anchor (sin prefijo --)
+ *
+ * @example
+ *   .button {
+ *     @include anchor('my-button');
+ *   }
+ *   // Output: anchor-name: --my-button;
+ */
+@mixin anchor($name) {
+  anchor-name: fn.anchor-name($name);
+}
+
+/**
+ * Posiciona un elemento relativo a un anchor
+ *
+ * Mixin base para anchor positioning. Soporta:
+ * - Position area (grid 3×3)
+ * - Fallback tactics automáticos
+ * - Distance presets
+ * - Position visibility
+ *
+ * @param {string} $anchor - Nombre del anchor de referencia (sin prefijo --)
+ * @param {string} $area - Área de posicionamiento del grid 3×3
+ * @param {string | null} $fallbacks - Tácticas de fallback o 'auto'
+ * @param {string | null} $distance - Tamaño de distancia: sm, md, lg, xl, 2xl
+ * @param {string | null} $visibility - position-visibility: always, anchors-visible, no-overflow
+ *
+ * @example
+ *   .tooltip {
+ *     @include positioned('button', 'top', 'flip-block', 'md');
+ *   }
+ *
+ * @example
+ *   .popover {
+ *     @include positioned('trigger', 'bottom left', 'auto', 'lg', 'anchors-visible');
+ *   }
+ */
+@mixin positioned(
+  $anchor,
+  $area,
+  $fallbacks: null,
+  $distance: null,
+  $visibility: null
+) {
+  position: absolute;
+  position-anchor: fn.anchor-name($anchor);
+  position-area: $area;
+
+  @if $fallbacks {
+    @if $fallbacks == 'auto' {
+      position-try-fallbacks: flip-block, flip-inline, flip-start;
+    } @else {
+      position-try-fallbacks: $fallbacks;
+    }
+  }
+
+  @if $distance {
+    margin: var(--anchor-distance-#{$distance});
+  }
+
+  @if $visibility {
+    position-visibility: $visibility;
+  }
+}
+
+
+/* === Arrow Mixins (Técnicas Correctas del Research) === */
+
+/**
+ * Genera 2-headed arrow vertical con margin magic
+ *
+ * Implementa la técnica "Margin Magic" de Temani Afif:
+ *
+ * 1. El tooltip tiene anchor-name para que el arrow se ancle a él
+ * 2. El arrow usa position: fixed (CRITICAL: NO absolute)
+ * 3. anchor() function posiciona el arrow relativo al tooltip
+ * 4. margin: inherit hereda el margin del tooltip
+ * 5. Al hacer flip, el margin cambia automáticamente
+ * 6. El margin oculta la punta incorrecta del double-headed arrow
+ *
+ * Resultado: Arrow que flip automáticamente SIN JavaScript
+ *
+ * Fuente: https://css-tip.com/tooltip-anchor/
+ *
+ * IMPORTANTE:
+ * - Este mixin debe aplicarse AL TOOLTIP, no al arrow
+ * - El tooltip debe tener margin-bottom o similar para la distancia
+ * - Usar con position-try-fallbacks: flip-block
+ *
+ * @param {number} $distance - Distancia del tooltip al anchor
+ * @param {number} $arrow-size - Ancho del arrow
+ * @param {string} $tooltip-anchor-name - Nombre del anchor del tooltip (default: 'tooltip')
+ *
+ * @example
+ *   .tooltip {
+ *     @include positioned('button', 'top', 'flip-block', 'md');
+ *     @include arrow-2headed(8px, 8px);
+ *   }
+ */
+@mixin arrow-2headed($distance, $arrow-size, $tooltip-anchor-name: 'tooltip') {
+  /* El tooltip mismo es anchor para el arrow */
+  anchor-name: fn.anchor-name($tooltip-anchor-name);
+
+  &::before {
+    content: '';
+
+    /* ⚠️ CRITICAL: position: fixed, NO absolute
+       Necesario para usar anchor() function */
+    position: fixed;
+
+    width: $arrow-size;
+    background: inherit;
+    z-index: -1;
+
+    /* Posicionamiento con anchor() function
+       Referencia al tooltip (que es --tooltip) Y al anchor original (--anchor) */
+    top: calc(anchor(fn.anchor-name($tooltip-anchor-name) top) - #{$distance});
+    bottom: calc(anchor(fn.anchor-name($tooltip-anchor-name) bottom) - #{$distance});
+    left: calc(anchor(--anchor center) - #{$arrow-size}/2);
+
+    /* ⚠️ MARGIN MAGIC: Hereda margin del tooltip
+       Cuando el tooltip tiene margin-bottom, oculta la punta inferior
+       Cuando hace flip y cambia a margin-top, oculta la punta superior
+       ¡Automático sin JavaScript! */
+    margin: inherit;
+
+    /* Double-headed arrow (puntas arriba y abajo) */
+    clip-path: fn.arrow-2headed-clip-path($distance);
+  }
+}
+
+/**
+ * Genera 4-headed arrow para todas las direcciones
+ *
+ * Polygon de 12 puntos con arrows en top/bottom/left/right
+ * Margin:inherit oculta las 3 puntas incorrectas automáticamente
+ *
+ * Diferencia con 2-headed:
+ * - Soporta flip-block Y flip-inline (4 direcciones)
+ * - Usa position: absolute (NO fixed) con inset
+ * - El arrow es relativo al tooltip, no al anchor original
+ *
+ * Fuente: https://css-tip.com/tooltip-anchor-2/
+ *
+ * @param {number} $distance - Distancia del arrow al tooltip edge
+ * @param {number} $arrow-size - Ancho del arrow en su base
+ *
+ * @example
+ *   .tooltip {
+ *     @include positioned('button', 'top', 'flip-block, flip-start, flip-start flip-inline');
+ *     @include arrow-4headed(8px, 10px);
+ *   }
+ */
+@mixin arrow-4headed($distance, $arrow-size) {
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    background: inherit;
+
+    /* inset negativo para extender el pseudo-element fuera del tooltip
+       Esto permite que el arrow sobresalga */
+    inset: calc(-1 * #{$distance});
+
+    /* ⚠️ MARGIN MAGIC: Oculta 3 de las 4 puntas automáticamente */
+    margin: inherit;
+
+    /* 4-headed arrow: 12 puntos (3 por cada dirección) */
+    clip-path: fn.arrow-4headed-clip-path($distance, $arrow-size);
+  }
+}
+
+/**
+ * Genera diagonal arrows para corner positioning
+ *
+ * Usa TWO pseudo-elements (::before y ::after) para corners opuestos
+ * Implementa la fórmula √2 para margin diagonal
+ *
+ * Técnica avanzada de Temani Afif para tooltips en esquinas:
+ * 1. Margin diagonal: calc(distance + (√2 - 1) × arrowSize)
+ * 2. Dos pseudo-elements para top-left y top-right corners
+ * 3. anchor-size() para dimensiones dinámicas del tooltip
+ * 4. clip-path: inset() para permitir arrows fuera del bounds
+ * 5. position-try flip hace que cambien a bottom corners
+ *
+ * Fuente: https://css-tip.com/tooltip-anchor-3/
+ *
+ * IMPORTANTE:
+ * - Este mixin configura el tooltip Y ambos pseudo-elements
+ * - El tooltip debe usar position-area con corner (top-left, etc.)
+ * - position-try debe incluir flip-inline y flip-block
+ *
+ * @param {number} $distance - Distancia del tooltip al anchor
+ * @param {number} $arrow-size - Tamaño del arrow diagonal
+ * @param {string} $tooltip-anchor-name - Nombre del anchor del tooltip (default: 'tooltip')
+ *
+ * @example
+ *   .tooltip-corner {
+ *     @include corner-positioned('button', 'top left', 8px, 10px);
+ *   }
+ */
+@mixin arrow-diagonal($distance, $arrow-size, $tooltip-anchor-name: 'tooltip') {
+  /* El tooltip es anchor para los arrows */
+  anchor-name: fn.anchor-name($tooltip-anchor-name);
+
+  /* clip-path: inset() negativo permite que arrows salgan del bounds del tooltip */
+  clip-path: inset(calc(-1 * #{$distance}));
+
+  &::before,
+  &::after {
+    content: '';
+    position: fixed;
+
+    /* ⚠️ Dimensiones dinámicas con anchor-size()
+       El arrow tiene el mismo tamaño que el tooltip para cubrir toda el área */
+    width: anchor-size(fn.anchor-name($tooltip-anchor-name) width);
+    height: anchor-size(fn.anchor-name($tooltip-anchor-name) height);
+
+    z-index: -1;
+    background: inherit;
+
+    /* Se ancla al anchor ORIGINAL (no al tooltip) */
+    position-anchor: --anchor;
+
+    /* Hereda el margin diagonal del tooltip */
+    margin: inherit;
+
+    /* Cuando el tooltip hace flip, los arrows también hacen flip */
+    position-try: flip-inline flip-block;
+  }
+
+  /* Diagonal arrow para top-left corner */
+  &::before {
+    position-area: top left;
+    clip-path: fn.arrow-diagonal-clip-path('top-left', $distance, $arrow-size);
+  }
+
+  /* Diagonal arrow para top-right corner */
+  &::after {
+    position-area: top right;
+    clip-path: fn.arrow-diagonal-clip-path('top-right', $distance, $arrow-size);
+  }
+}
+
+
+/* === Specialized Mixins (Composables de alto nivel) === */
+
+/**
+ * Tooltip completo con 2-headed arrow vertical
+ *
+ * Mixin de conveniencia que combina positioned + arrow-2headed
+ * Para tooltips simples que flip vertical (top ↔ bottom)
+ *
+ * @param {string} $anchor - Nombre del anchor de referencia
+ * @param {string} $area - Position area (default: 'top')
+ * @param {string} $distance-size - Distance preset (default: 'md')
+ * @param {number} $arrow-size - Arrow size en px (default: 8px)
+ *
+ * @example
+ *   .simple-tooltip {
+ *     @include tooltip-2headed('button');
+ *     background: black;
+ *     color: white;
+ *     padding: 0.5rem;
+ *   }
+ */
+@mixin tooltip-2headed(
+  $anchor,
+  $area: 'top',
+  $distance-size: 'md',
+  $arrow-size: 8px
+) {
+  @include positioned($anchor, $area, 'flip-block', $distance-size);
+  @include arrow-2headed(var(--anchor-distance-#{$distance-size}), $arrow-size);
+}
+
+/**
+ * Tooltip completo con 4-headed arrow
+ *
+ * Para tooltips que reposicionan en las 4 direcciones
+ * (top, bottom, left, right)
+ *
+ * @param {string} $anchor - Nombre del anchor de referencia
+ * @param {string} $area - Position area (default: 'top')
+ * @param {string} $distance-size - Distance preset (default: 'md')
+ * @param {number} $arrow-size - Arrow size en px (default: 8px)
+ *
+ * @example
+ *   .flexible-tooltip {
+ *     @include tooltip-4headed('button', 'top', 'md', 10px);
+ *     background: #1a1a1a;
+ *     color: white;
+ *     padding: 0.5rem 0.75rem;
+ *     border-radius: 0.375rem;
+ *   }
+ */
+@mixin tooltip-4headed(
+  $anchor,
+  $area: 'top',
+  $distance-size: 'md',
+  $arrow-size: 8px
+) {
+  @include positioned(
+    $anchor,
+    $area,
+    'flip-block, flip-start, flip-start flip-inline',
+    $distance-size
+  );
+  @include arrow-4headed(var(--anchor-distance-#{$distance-size}), $arrow-size);
+}
+
+/**
+ * Corner positioning completo con diagonal arrows
+ *
+ * Mixin all-in-one para tooltips en esquinas
+ * Implementa margin diagonal con √2 formula
+ *
+ * @param {string} $anchor - Nombre del anchor de referencia
+ * @param {string} $corner - Corner position: 'top left', 'top right', 'bottom left', 'bottom right'
+ * @param {number} $distance - Distancia en px
+ * @param {number} $arrow-size - Arrow size en px
+ *
+ * @example
+ *   .corner-tooltip {
+ *     @include corner-positioned('button', 'top left', 8px, 10px);
+ *     background: navy;
+ *     color: white;
+ *     padding: 0.5rem;
+ *   }
+ */
+@mixin corner-positioned($anchor, $corner, $distance, $arrow-size) {
+  position: absolute;
+  position-anchor: fn.anchor-name($anchor);
+  position-area: $corner;
+
+  /* √2 margin diagonal para compensar rotación de 45° */
+  $diagonal-margin: fn.corner-margin($distance, $arrow-size);
+  margin: $diagonal-margin 0 0 $diagonal-margin;
+
+  /* inset para posicionar correctamente */
+  inset: 0 $distance $distance 0;
+
+  /* Fallbacks para las 4 corners */
+  position-try: flip-inline, flip-block, flip-block flip-inline;
+
+  /* Diagonal arrows */
+  @include arrow-diagonal($distance, $arrow-size);
+}
+
+
+/* === Scroll-Driven Animation Mixins === */
+
+/**
+ * Configura view-timeline en un anchor para scroll-driven animations
+ *
+ * El anchor (ej: thumb de range slider) emite un timeline que
+ * el positioned element puede consumir para animarse
+ *
+ * Fuente: https://css-tip.com/range-slider-tooltip/
+ *
+ * @param {string} $timeline-name - Nombre del timeline (sin prefijo --)
+ * @param {string} $axis - Eje del scroll: 'inline' | 'block' (default: 'inline')
+ *
+ * @example
+ *   input[type="range"]::-webkit-slider-thumb {
+ *     @include anchor('thumb');
+ *     @include scroll-timeline('thumb-view');
+ *   }
+ */
+@mixin scroll-timeline($timeline-name, $axis: 'inline') {
+  view-timeline: --#{$timeline-name} #{$axis};
+}
+
+/**
+ * Conecta positioned element a un scroll-driven timeline
+ *
+ * El positioned element se ancla Y se anima en sync con el timeline
+ *
+ * @param {string} $anchor - Anchor de referencia
+ * @param {string} $timeline-name - Nombre del timeline (sin prefijo --)
+ * @param {string} $area - Position area (default: 'top')
+ *
+ * @example
+ *   output {
+ *     @include scroll-driven-positioned('thumb', 'thumb-view');
+ *
+ *     // Definir animación por separado
+ *     animation: range linear both;
+ *   }
+ *
+ *   @keyframes range {
+ *     from { background: red; }
+ *     to { background: blue; }
+ *   }
+ */
+@mixin scroll-driven-positioned($anchor, $timeline-name, $area: 'top') {
+  @include positioned($anchor, $area);
+
+  /* Conectar al timeline del anchor */
+  animation-timeline: --#{$timeline-name};
+
+  /* Range estándar para tooltips que siguen elementos */
+  animation-range: entry 100% exit 0%;
+}
+
+/**
+ * Configura @property para valores interpolables en scroll-driven animations
+ *
+ * Las scroll-driven animations pueden interpolar custom properties
+ * si se definen con @property
+ *
+ * @param {string} $name - Nombre de la property (sin prefijo --)
+ * @param {string} $syntax - Syntax: '<integer>', '<number>', '<percentage>', etc.
+ * @param {any} $initial - Valor inicial
+ * @param {boolean} $inherits - Si hereda o no (default: true)
+ *
+ * @example
+ *   // En el CSS global o component-level
+ *   @include property-for-animation('val', '<integer>', 0);
+ *
+ *   // Usar en keyframes
+ *   @keyframes range {
+ *     0% { --val: 100; }
+ *     100% { --val: 0; }
+ *   }
+ */
+@mixin property-for-animation($name, $syntax, $initial, $inherits: true) {
+  @property --#{$name} {
+    syntax: $syntax;
+    inherits: $inherits;
+    initial-value: $initial;
+  }
+}
+
+
+/* === @position-try Helpers === */
+
+/**
+ * Genera custom @position-try rule
+ *
+ * Permite definir posiciones de fallback personalizadas
+ * más allá de flip-block, flip-inline, etc.
+ *
+ * Fuente: https://css-tip.com/tooltip-anchor-2/
+ *
+ * @param {string} $name - Nombre de la regla (sin prefijo --)
+ * @param {string} $area - Position area para esta regla
+ * @param {map} $properties - Mapa de propiedades CSS adicionales
+ *
+ * @example
+ *   @include position-try-rule('left', 'left', (
+ *     right: 8px,
+ *     margin: 8px,
+ *     margin-right: 0
+ *   ));
+ *
+ *   .tooltip {
+ *     @include positioned('button', 'top');
+ *     position-try: flip-block, --left;
+ *   }
+ */
+@mixin position-try-rule($name, $area, $properties: ()) {
+  @position-try --#{$name} {
+    position-area: $area;
+
+    @each $prop, $value in $properties {
+      #{$prop}: $value;
+    }
+  }
+}
+
+/**
+ * Aplica distance margin en una sola dirección
+ *
+ * Helper para @position-try rules que necesitan margin
+ * solo en un lado (ej: margin-bottom para top, margin-left para right)
+ *
+ * @param {string} $direction - Dirección: 'top', 'bottom', 'left', 'right'
+ * @param {string} $distance-size - Distance preset (default: 'md')
+ *
+ * @example
+ *   @position-try --bottom {
+ *     position-area: bottom;
+ *     @include directional-margin('top', 'md');
+ *   }
+ */
+@mixin directional-margin($direction, $distance-size: 'md') {
+  margin: var(--anchor-distance-#{$distance-size});
+
+  @if $direction == 'top' {
+    margin-top: 0;
+  } @else if $direction == 'bottom' {
+    margin-bottom: 0;
+  } @else if $direction == 'left' {
+    margin-left: 0;
+  } @else if $direction == 'right' {
+    margin-right: 0;
+  }
+}
+

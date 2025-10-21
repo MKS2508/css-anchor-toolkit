@@ -1,0 +1,65 @@
+/**
+ * @file anchortoolkit.core.scss
+ * @description CSS Anchor Positioning Toolkit - Main Entry Point
+ *
+ * Toolkit completo para CSS Anchor Positioning basado en research
+ * exhaustivo de 9 artículos de css-tip.com y especificaciones W3C
+ *
+ * @version 1.0.0
+ * @author MKS2508
+ *
+ * @see ../../CSS-ANCHOR-RESEARCH.md - Research completo (30+ técnicas)
+ * @see ../../CSS-ANCHOR-ADVANCED-TECHNIQUES.md - 7 implementaciones completas
+ *
+ * ## Uso en SCSS Projects
+ *
+ * ```scss
+ * @use 'anchortoolkit.core' as anchor;
+ *
+ * .my-button {
+ *   @include anchor.anchor('btn');
+ * }
+ *
+ * .my-tooltip {
+ *   @include anchor.positioned('btn', 'top', 'flip-block', 'md');
+ *   @include anchor.arrow-2headed(8px, 8px);
+ *   background: black;
+ *   color: white;
+ *   padding: 0.5rem;
+ * }
+ * ```
+ *
+ * ## Uso en HTML/CSS
+ *
+ * Las utility classes se incluyen automáticamente en el compiled CSS:
+ *
+ * ```html
+ * <button style="anchor-name: --btn">Click me</button>
+ * <div class="positioned anchor-top anchor-distance-md flip-auto">
+ *   Tooltip
+ * </div>
+ * ```
+ *
+ * ## Técnicas Implementadas
+ *
+ * ✅ Margin Magic (position: fixed + margin: inherit)
+ * ✅ 2-headed arrow vertical (top/bottom flip)
+ * ✅ 4-headed arrow (top/bottom/left/right)
+ * ✅ Diagonal arrows con √2 formula (corner positioning)
+ * ✅ Scroll-driven animations + anchor positioning
+ * ✅ @position-try custom rules
+ * ✅ 36+ position-area values
+ * ✅ 576 configuraciones (36 × 4 justify × 4 align)
+ */
+
+/* === Config: CSS Custom Properties + SCSS Variables === */
+@forward 'config';
+
+/* === Functions: Helpers para cálculos y generación === */
+@forward 'functions';
+
+/* === Mixins: Core de la API SCSS === */
+@forward 'mixins';
+
+/* === Utilities: Classes predecibles auto-generadas === */
+@use 'utilities';
