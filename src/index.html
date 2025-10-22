@@ -1,10 +1,107 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/avif" href="./anchor.avif" />
-    <title>CSS Anchor Toolkit</title>
+
+    <!-- Meta Tags Básicas -->
+    <title>CSS Anchor Toolkit - Simplifica CSS Anchor Positioning | Biblioteca TypeScript</title>
+    <meta name="description" content="CSS Anchor Positioning simplificado. 30+ técnicas avanzadas en una biblioteca 100% tipada y amigable. Soporta SCSS, React, TypeScript y Tailwind CSS. Código abierto por @MKS2508." />
+    <meta name="keywords" content="CSS Anchor Positioning, CSS Toolkit, TypeScript, SCSS, React, Tailwind CSS, Tooltip, Popover, Positioning API, CSS3, Frontend, Open Source" />
+    <meta name="author" content="MKS2508" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="es" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="CSS Anchor Toolkit - Simplifica CSS Anchor Positioning" />
+    <meta property="og:description" content="30+ técnicas avanzadas de CSS Anchor Positioning en una biblioteca 100% tipada. Compatible con SCSS, React, TypeScript y Tailwind CSS. Código abierto." />
+    <meta property="og:image" content="https://raw.githubusercontent.com/MKS2508/css-anchor-toolkit/main/anchor.avif" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="CSS Anchor Toolkit - Logo de Ancla" />
+    <meta property="og:url" content="https://css-anchor-toolkit.dev" />
+    <meta property="og:site_name" content="CSS Anchor Toolkit" />
+    <meta property="og:locale" content="es_ES" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@MKS2508" />
+    <meta name="twitter:creator" content="@MKS2508" />
+    <meta name="twitter:title" content="CSS Anchor Toolkit - Simplifica CSS Anchor Positioning" />
+    <meta name="twitter:description" content="30+ técnicas avanzadas en una biblioteca 100% tipada. SCSS, React, TypeScript y Tailwind CSS friendly. 🚀 Open Source" />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/MKS2508/css-anchor-toolkit/main/anchor.avif" />
+    <meta name="twitter:image:alt" content="CSS Anchor Toolkit - Logo de Ancla" />
+
+    <!-- Meta Tags Técnicas -->
+    <meta name="application-name" content="CSS Anchor Toolkit" />
+    <meta name="apple-mobile-web-app-title" content="CSS Anchor Toolkit" />
+    <meta name="theme-color" content="#3B82F6" />
+    <meta name="msapplication-TileColor" content="#3B82F6" />
+
+    <!-- Favicon y Icons - AVIF优先 con fallbacks PNG -->
+    <link rel="icon" href="./anchor.avif" type="image/avif" />
+    <link rel="icon" href="./favicon-32x32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="./favicon-16x16.png" type="image/png" sizes="16x16" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" sizes="180x180" />
+    <link rel="icon" href="./android-chrome-192x192.png" type="image/png" sizes="192x192" />
+    <link rel="icon" href="./android-chrome-512x512.png" type="image/png" sizes="512x512" />
+    <link rel="manifest" href="./manifest.json" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://css-anchor-toolkit.dev" />
+
+    <!-- DNS Prefetch para mejor performance -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="//fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="//github.com" />
+    <link rel="dns-prefetch" href="//npmjs.com" />
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareSourceCode",
+      "name": "CSS Anchor Toolkit",
+      "description": "CSS Anchor Positioning simplificado. 30+ técnicas avanzadas en una biblioteca 100% tipada y amigable",
+      "url": "https://css-anchor-toolkit.dev",
+      "author": {
+        "@type": "Person",
+        "name": "MKS2508",
+        "url": "https://github.com/MKS2508"
+      },
+      "maintainer": {
+        "@type": "Person",
+        "name": "MKS2508",
+        "url": "https://github.com/MKS2508"
+      },
+      "license": "https://opensource.org/licenses/MIT",
+      "programmingLanguage": "TypeScript",
+      "runtimePlatform": "Node.js",
+      "downloadUrl": "https://www.npmjs.com/package/css-anchor-toolkit",
+      "repository": {
+        "@type": "SoftwareSourceCode",
+        "name": "css-anchor-toolkit",
+        "url": "https://github.com/MKS2508/css-anchor-toolkit",
+        "codeRepository": "https://github.com/MKS2508/css-anchor-toolkit.git"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "keywords": ["CSS Anchor Positioning", "TypeScript", "SCSS", "React", "Tailwind CSS", "Frontend", "Open Source"],
+      "dateCreated": "2024-01-01",
+      "dateModified": "2024-12-01",
+      "inLanguage": "es"
+    }
+    </script>
 
     <!-- Google Fonts: Neue Haas Grotesk -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
