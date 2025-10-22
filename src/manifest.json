@@ -1,0 +1,107 @@
+{
+  "name": "CSS Anchor Toolkit",
+  "short_name": "Anchor Toolkit",
+  "description": "CSS Anchor Positioning simplificado. 30+ técnicas avanzadas en una biblioteca 100% tipada y amigable.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3B82F6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["developer", "education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "./anchor.avif",
+      "sizes": "512x512",
+      "type": "image/avif",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "CSS Anchor Toolkit en escritorio"
+    },
+    {
+      "src": "./screenshot-mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "CSS Anchor Toolkit en móvil"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Documentación",
+      "short_name": "Docs",
+      "description": "Ver documentación completa",
+      "url": "/#documentation",
+      "icons": [
+        {
+          "src": "./anchor.avif",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Quick Start",
+      "short_name": "Inicio",
+      "description": "Guía rápida de inicio",
+      "url": "/#quickstart",
+      "icons": [
+        {
+          "src": "./anchor.avif",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Demos",
+      "short_name": "Demo",
+      "description": "Probar demos interactivas",
+      "url": "/#advanced",
+      "icons": [
+        {
+          "src": "./anchor.avif",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://css-anchor-toolkit.dev"
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": ["focus-existing", "auto"]
+  }
+}
