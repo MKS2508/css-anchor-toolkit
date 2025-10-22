@@ -1,6 +1,15 @@
 {
-  "name": "bun-react-template",
-  "version": "0.1.0",
+  "name": "css-anchor-toolkit",
+  "version": "1.0.0",
+  "description": "CSS Anchor Positioning simplified. 30+ advanced techniques in one typed, developer-friendly toolkit.",
+  "keywords": ["css", "anchor-positioning", "tooltip", "popover", "positioning", "css-anchor", "scss", "react", "typescript", "tailwind"],
+  "author": "MKS2508",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/css-anchor-toolkit.git"
+  },
+  "homepage": "https://css-anchor-toolkit.dev",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,6 +28,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.545.0",
+    "motion": "^12.23.24",
     "react": "^19",
     "react-dom": "^19",
     "react-markdown": "^10.1.0",

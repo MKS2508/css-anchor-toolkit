@@ -1,6 +1,6 @@
 # API Reference
 
-Documentación completa de todas las funciones, types, componentes y mixins del **CSS Anchor Positioning Toolkit v2.0.0**.
+Documentación completa de todas las funciones, types, componentes y mixins del **CSS Anchor Positioning Toolkit**.
 
 ---
 
@@ -773,36 +773,6 @@ const FALLBACK_TACTICS: readonly FallbackTactic[] = [
   'flip-start',
 ] as const;
 ```
-
----
-
-## Breaking Changes (v2.0.0)
-
-### Componentes React
-
-#### Tooltip
-
-```typescript
-// ❌ Old API (v1.x):
-<Tooltip
-  anchor="--btn"
-  placement="top"    // Solo 4 valores
-  distance={10}      // Number (pixels)
-  arrowSize={8}      // Number (pixels)
-/>
-
-// ✅ New API (v2.0.0):
-<Tooltip
-  anchor="--btn"
-  placement="top"              // 50+ PositionAreaValue
-  distance="md"                // DistanceSize type
-  arrow={{ type: '2-headed', size: 'md' }}  // ArrowOptions
-/>
-```
-
-#### Popover y ContextMenu
-
-Mismo patrón: `distance: number` → `distance: DistanceSize`, `area: string` → `area: PositionAreaValue`
 
 ---
 
