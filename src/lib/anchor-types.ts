@@ -12,7 +12,7 @@
 /* === Core Types from SCSS === */
 
 /**
- * Position-area values (36+ positions)
+ * Position-area values (50+ positions)
  */
 export type PositionAreaValue =
   | 'top'
@@ -22,18 +22,31 @@ export type PositionAreaValue =
   | 'center'
   | 'top left'
   | 'top right'
+  | 'top center'
   | 'bottom left'
   | 'bottom right'
+  | 'bottom center'
+  | 'left center'
+  | 'right center'
   | 'block-start'
   | 'block-end'
   | 'inline-start'
   | 'inline-end'
+  | 'start'
+  | 'end'
+  | 'self-start'
+  | 'self-end'
   | 'block-start inline-start'
   | 'block-start inline-end'
   | 'block-end inline-start'
   | 'block-end inline-end'
   | 'center inline-start'
   | 'center inline-end'
+  | 'span-top'
+  | 'span-bottom'
+  | 'span-left'
+  | 'span-right'
+  | 'span-all'
   | 'top span-left'
   | 'top span-right'
   | 'span-top left'
@@ -54,18 +67,17 @@ export type PositionAreaValue =
   | 'span-right top'
   | 'span-right center'
   | 'span-right bottom'
-  | 'span-all'
   | 'center span-all';
 
 /**
  * Justify-self values
  */
-export type JustifyValue = 'start' | 'end' | 'center' | 'stretch';
+export type JustifyValue = 'start' | 'end' | 'center' | 'stretch' | 'anchor-center';
 
 /**
  * Align-self values
  */
-export type AlignValue = 'start' | 'end' | 'center' | 'stretch';
+export type AlignValue = 'start' | 'end' | 'center' | 'stretch' | 'anchor-center';
 
 /**
  * Distance size presets

@@ -118,7 +118,7 @@ export const anchorStyles = {
  * Helper function to create complete anchor styles
  */
 export function createAnchorStyle(
-  size: keyof typeof anchorStyles.small | typeof anchorStyles.medium | typeof anchorStyles.large | typeof anchorStyles.extraLarge = 'medium',
+  size: 'small' | 'medium' | 'large' | 'extraLarge' = 'medium',
   color: keyof typeof anchorStyles.colors = 'blue',
   state?: 'hover' | 'active' | 'dragging'
 ) {
