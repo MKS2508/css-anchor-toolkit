@@ -187,7 +187,7 @@ function CustomRulesDemo() {
     { id: 'left-stretch', name: 'Left Stretch', area: 'left', justify: 'stretch', margin: '4px' },
   ];
 
-  const activeRule = customRules.find((r) => r.id === selectedRule) || customRules[0];
+  const activeRule = customRules.find((r) => r.id === selectedRule) || customRules[0]!;
 
   return (
     <section>

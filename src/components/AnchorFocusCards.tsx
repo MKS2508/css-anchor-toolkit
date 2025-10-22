@@ -1,4 +1,5 @@
-import React, { useState, ReactNode } from 'react';
+import React, { useState } from 'react';
+import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Tooltip } from './Tooltip';
 import { createAnchorName } from '@/lib/anchor-helpers';
