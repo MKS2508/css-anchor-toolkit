@@ -92,7 +92,8 @@ export const Tooltip: FC<TooltipProps> = ({
     borderRadius: '6px',
     fontSize: '14px',
     maxWidth: '250px',
-    zIndex: 1000,
+    zIndex: 1,
+    pointerEvents: 'none',
 
     ...style,
   } as CSSProperties;

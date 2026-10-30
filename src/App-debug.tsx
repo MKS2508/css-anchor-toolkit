@@ -55,7 +55,7 @@ interface DebugConfig {
 }
 
 const DEFAULT_CONFIG: DebugConfig = {
-  scenario: 'tooltip-directions',
+  scenario: 'simple',
   component: 'tooltip',
   positionArea: 'top',
   distance: 'md',
@@ -110,6 +110,15 @@ export function AppDebug() {
   const [showPopover, setShowPopover] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [anchorPosition, setAnchorPosition] = useState({ x: 300, y: 200 });
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Check for saved preference or system preference
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('darkMode');
+      if (saved !== null) return saved === 'true';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
   const anchorRef = useRef<HTMLDivElement>(null);
   const supportsAnchor = supportsAnchorPositioning();
 
@@ -126,6 +135,48 @@ export function AppDebug() {
   const handleContextMenuOpen = (e: React.MouseEvent) => {
     e.preventDefault();
     setShowContextMenu(true);
+  };
+
+  useEffect(() => {
+    if (config.scenario === 'simple' && (showTooltip || showPopover || showContextMenu)) {
+      setActiveElement({
+        anchorName: anchorName,
+        placement: config.positionArea,
+        distance: config.distance,
+        arrowType: config.arrowEnabled ? config.arrowType : undefined,
+        arrowSize: config.arrowEnabled ? config.arrowSize : undefined,
+        isVisible: true,
+      });
+    } else if (config.scenario === 'simple') {
+      setActiveElement(null);
+    }
+  }, [
+    config.scenario,
+    config.positionArea,
+    config.distance,
+    config.arrowEnabled,
+    config.arrowType,
+    config.arrowSize,
+    config.component,
+    showTooltip,
+    showPopover,
+    showContextMenu,
+    anchorName,
+  ]);
+
+  // Apply theme to document
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    // Save preference to localStorage
+    localStorage.setItem('darkMode', isDarkMode.toString());
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
   };
 
   return (
@@ -171,6 +222,15 @@ export function AppDebug() {
               <Badge variant={supportsAnchor ? 'default' : 'destructive'} className="text-xs">
                 {supportsAnchor ? '✓ Support' : '✗ No Support'}
               </Badge>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleDarkMode}
+                className="w-9 px-0"
+                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDarkMode ? '☀️' : '🌙'}
+              </Button>
               <Button variant="outline" size="sm" onClick={resetConfig}>
                 🔄 Reset
               </Button>
@@ -191,14 +251,14 @@ export function AppDebug() {
 
       {/* Main Layout: 3 columnas */}
       <div className="container mx-auto p-6">
-        <div className="grid grid-cols-[300px_1fr_350px] gap-6 h-[calc(100vh-120px)]">
+        <div className="grid grid-cols-[300px_1fr_350px] gap-6 h-[calc(100vh-120px)] items-start">
           {/* Left Panel: Controls */}
-          <div className="overflow-auto">
+          <div className="overflow-y-auto overflow-x-hidden relative z-10 will-change-scroll h-full">
             <DebugControlPanel config={config} onConfigChange={updateConfig} />
           </div>
 
           {/* Center: Canvas */}
-          <div className="border rounded-lg bg-white dark:bg-slate-900 relative overflow-hidden">
+          <div className="border rounded-lg bg-white dark:bg-slate-900 relative overflow-hidden isolate h-full">
             <DebugCanvas
               config={config}
               anchorName={anchorName}
@@ -217,7 +277,7 @@ export function AppDebug() {
           </div>
 
           {/* Right Panel: Inspector */}
-          <div className="overflow-auto">
+          <div className="overflow-y-auto overflow-x-hidden relative z-10 will-change-scroll h-full">
             <DebugInspector
               config={config}
               anchorName={anchorName}
@@ -555,8 +615,11 @@ function DebugCanvas({
       onContextMenu={onContextMenuOpen}
     >
       {/* Grid Overlay */}
-      {config.showGrid && (
-        <GridOverlay anchorRef={anchorRef} />
+      {config.showGrid && <GridOverlay anchorRef={anchorRef} />}
+
+      {/* Measurements Overlay */}
+      {config.showMeasurements && anchorRef.current && (
+        <MeasurementsOverlay anchorRef={anchorRef} distance={config.distance} />
       )}
 
       {/* Anchor Element */}
@@ -741,6 +804,82 @@ function GridOverlay({ anchorRef }: { anchorRef: React.RefObject<HTMLDivElement>
   );
 }
 
+function MeasurementsOverlay({
+  anchorRef,
+  distance,
+}: {
+  anchorRef: React.RefObject<HTMLDivElement>;
+  distance: DistanceSize;
+}) {
+  const [anchorRect, setAnchorRect] = useState<DOMRect | null>(null);
+
+  useEffect(() => {
+    if (anchorRef.current) {
+      const updateRect = () => {
+        if (anchorRef.current) {
+          setAnchorRect(anchorRef.current.getBoundingClientRect());
+        }
+      };
+
+      updateRect();
+      const interval = setInterval(updateRect, 100);
+
+      return () => clearInterval(interval);
+    }
+  }, [anchorRef]);
+
+  if (!anchorRect) return null;
+
+  const distanceValue = CSS_VARS.distances[distance];
+  const distancePx = parseFloat(distanceValue.replace('var(--anchor-distance-', '').replace(')', '')) || 8;
+
+  return (
+    <div className="absolute pointer-events-none inset-0 z-[5]">
+      {/* Top measurement line */}
+      <div
+        style={{
+          position: 'absolute',
+          left: `${anchorRect.left + anchorRect.width / 2}px`,
+          top: `${anchorRect.top - distancePx}px`,
+          width: '2px',
+          height: `${distancePx}px`,
+          backgroundColor: '#f59e0b',
+        }}
+      >
+        <div
+          className="absolute left-2 top-1/2 -translate-y-1/2 bg-orange-500 text-white px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap"
+        >
+          {distance} ({distancePx}px)
+        </div>
+      </div>
+
+      {/* Anchor size indicator */}
+      <div
+        style={{
+          position: 'absolute',
+          left: `${anchorRect.left}px`,
+          top: `${anchorRect.bottom + 4}px`,
+        }}
+        className="bg-blue-500 text-white px-2 py-1 rounded text-[10px] font-mono"
+      >
+        {Math.round(anchorRect.width)}×{Math.round(anchorRect.height)}px
+      </div>
+
+      {/* Anchor position */}
+      <div
+        style={{
+          position: 'absolute',
+          left: `${anchorRect.left - 60}px`,
+          top: `${anchorRect.top}px`,
+        }}
+        className="bg-purple-500 text-white px-2 py-1 rounded text-[10px] font-mono"
+      >
+        x:{Math.round(anchorRect.left)} y:{Math.round(anchorRect.top)}
+      </div>
+    </div>
+  );
+}
+
 function DebugInspector({
   config,
   anchorName,
@@ -798,18 +937,25 @@ function DebugInspector({
 
   return (
     <div className="space-y-4">
-      {/* Active Element Card */}
-      {activeElement && (
-        <Card className="border-blue-500 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20">
-          <CardHeader>
-            <CardTitle className="text-sm text-blue-700 dark:text-blue-300">
-              ⚡ Active Element
-            </CardTitle>
-            <CardDescription className="text-xs">
-              Currently inspecting: {activeElement.placement}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      {/* Active Element Card - Always visible to prevent layout shifts */}
+      <Card
+        className={`transition-all duration-200 ${
+          activeElement
+            ? 'border-blue-500 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/20 opacity-100'
+            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 opacity-60'
+        }`}
+        style={{ height: '180px', overflow: 'hidden' }}
+      >
+        <CardHeader>
+          <CardTitle className={`text-sm ${activeElement ? 'text-blue-700 dark:text-blue-300' : 'text-slate-500 dark:text-slate-400'}`}>
+            ⚡ Active Element
+          </CardTitle>
+          <CardDescription className="text-xs">
+            {activeElement ? `Currently inspecting: ${activeElement.placement}` : 'Hover over an element to inspect'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {activeElement ? (
             <div className="space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Placement:</span>
@@ -832,9 +978,16 @@ function DebugInspector({
                 </code>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          ) : (
+            <div className="space-y-2 text-xs text-slate-400 dark:text-slate-500 italic">
+              <div>No active element</div>
+              <div className="text-[10px] mt-2">
+                Hover over tooltips in the canvas to see their properties here
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Anchor Definition Card */}
       <Card>
